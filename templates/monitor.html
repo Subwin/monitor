@@ -3,10 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <title>服务器性能监控</title>
-    <script src="/static/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js"></script>
+    <script src="/static/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js"></script>
+    <script>
+        var log = function () {
+            console.log(arguments);
+        };
+        var chart = {};
+
+        chart.ajax = function (url, method, form, response) {
+            data = JSON.stringify(form);
+            var request = {
+                url: url,
+                type: method,
+                data: data,
+                contentType: 'application/json',
+                success: function (r) {
+                    log('chart get success', url, r);
+                    response(r);
+                }
+            };
+            $.ajax(request);
+        };
+
+        chart.get = function (url, response) {
+            var method = 'get';
+            var form = {};
+            this.ajax(url, method, form, response);
+        };
+
+        var dataDict = function (labels, data) {
+            var d = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Mac 服务器信息",
+                        data: data,
+                        backgroundColor: "rgba(151,187,205,0.2)",
+                        borderColor: "rgba(151,187,205,1)",
+                        pointBorderColor: "rgba(151,187,205,1)",
+                        pointBackgroundColor: "#fff",
+                        pointBorderWidth: 2,
+                    }
+                ]
+            };
+
+            var options = {
+                scales: {
+                    xAxes: [{
+                        display: false
+                    }]
+                }
+            };
+
+            var chartD = {
+                data: d,
+                options: options
+            };
+            return chartD
+        };
+
+
+        var insertCpuChart = function () {
+            var ctx = document.getElementById("cpuChart");
+            var response = function (r) {
+                if (r.success) {
+                    var labels = labels;
+                    var data = r.data;
+                    var d = dataDict(labels, data);
+                    linuxCpuChart = Chart.Line(ctx, d);
+                } else {
+                    log(r.success)
+                }
+
+            };
+            chart.recent_cpu(response);
+        };
+
+        var __main = function () {
+//            insertMacIoChart();
+            insertCpuChart();
+//              insertDeviceChart();
+//            setInterval(function () {
+//                updateMacData();
+//            }, 1000);
+        };
+
+        $(document).ready(function () {
+            __main();
+        });
+    </script>
 </head>
 <body>
-
+<h1>服务器信息</h1>
+<canvas id="cpuChart" width="400" height="400"></canvas>
 </body>
 </html>

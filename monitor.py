@@ -1,6 +1,7 @@
 import subprocess
 import time
 from pymongo import MongoClient
+from pymongo import DESCENDING
 import flask
 
 app = flask.Flask(__name__)
@@ -127,13 +128,15 @@ def index_view():
 def chart_recent_cpu():
     # insert_linux(output, output_index, linux_cpu, linux_device)
     # 找到 cpu 信息, 得到最新的 [-1] 得到最新的数据
-    c = coll.find_one()
-    labels = c['labels']
-    recent_data = c['dataset'][-1]
-    d = recent_data['data']
+    labels = [60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0]
+    data_lists = coll.find().sort("created_time", DESCENDING).limit(len(labels))
+    index_of_1min, index_of_5min, index_of_10min = 0, 1, 2
+    recent_data_1min = [d['datasets']['cpu_load_data']['data'][index_of_1min] for d in data_lists]
+    # recent_data_5min = [d['datasets']['cpu_load_data']['data'][index_of_5min] for d in data_lists]
+    # recent_data_10min = [d['datasets']['cpu_load_data']['data'][index_of_10min] for d in data_lists]
     r = {
         'labels': labels,
-        'data': d,
+        'data': recent_data_1min,
     }
     print('recent_cpu', r)
     return flask.jsonify(r)
@@ -150,4 +153,12 @@ if __name__ == "__main__":
     #             'avg_cpu_data': {'lables': ['user', 'nice', 'system', 'iowait', 'steal', 'idle'],
     #                              'data': [13.94, 0.85, 3.98, 0.19, 0.0, 81.04]},
     #             'cpu_load_data': {'lables': ['1min', '5min', '10min'], 'data': [0.01, 0.21, 0.31]}}}
-    app.run(debug=True)
+    # app.run(debug=True)
+
+    labels = [60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0]
+    data_lists = coll.find().sort("created_time", DESCENDING).limit(len(labels))
+    index_of_1min = 0
+    index_of_5min = 1
+    index_of_10min = 2
+    recent_data_1min = [d['datasets']['cpu_load_data']['data'][index_of_1min] for d in data_lists]
+    print(recent_data_1min)
