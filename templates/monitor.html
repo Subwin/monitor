@@ -32,12 +32,17 @@
             this.ajax(url, method, form, response);
         };
 
-        var dataDict = function (labels, data) {
+        chart.recent_cpu = function (response) {
+            var path = '/chart/recent/cpu';
+            this.get(path, response);
+        };
+
+        var cpuDataDict = function (labels, data) {
             var d = {
                 labels: labels,
                 datasets: [
                     {
-                        label: "Mac 服务器信息",
+                        label: "服务器 cpu 信息",
                         data: data,
                         backgroundColor: "rgba(151,187,205,0.2)",
                         borderColor: "rgba(151,187,205,1)",
@@ -49,6 +54,7 @@
             };
 
             var options = {
+                responsive: false,
                 scales: {
                     xAxes: [{
                         display: false
@@ -56,11 +62,12 @@
                 }
             };
 
-            var chartD = {
+            var cpuLineChart = {
+                type: 'line',
                 data: d,
                 options: options
             };
-            return chartD
+            return cpuLineChart
         };
 
 
@@ -68,10 +75,10 @@
             var ctx = document.getElementById("cpuChart");
             var response = function (r) {
                 if (r.success) {
-                    var labels = labels;
-                    var data = r.data;
-                    var d = dataDict(labels, data);
-                    linuxCpuChart = Chart.Line(ctx, d);
+                    var labels = r.labels;
+                    var data = r.data.reverse();
+                    var d = cpuDataDict(labels, data);
+                    linuxCpuChart = new Chart(ctx, d);
                 } else {
                     log(r.success)
                 }
