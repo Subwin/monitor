@@ -1,7 +1,6 @@
 import subprocess
 import time
 from pymongo import MongoClient
-from pymongo import DESCENDING
 
 
 def cpu_output_parse(output):

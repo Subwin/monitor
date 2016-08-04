@@ -37,16 +37,34 @@
             this.get(path, response);
         };
 
-        var cpuDataDict = function (labels, data) {
+        var cpuDataDict = function (labels, data1, data5, data10) {
             var d = {
                 labels: labels,
                 datasets: [
                     {
-                        label: "服务器 cpu 信息",
-                        data: data,
+                        label: "cpu 1min平均负载",
+                        data: data1,
                         backgroundColor: "rgba(151,187,205,0.2)",
                         borderColor: "rgba(151,187,205,1)",
                         pointBorderColor: "rgba(151,187,205,1)",
+                        pointBackgroundColor: "#fff",
+                        pointBorderWidth: 2,
+                    },
+                    {
+                        label: "cpu 5min平均负载",
+                        data: data5,
+                        backgroundColor: "rgba(151,227,205,0.3)",
+                        borderColor: "rgba(151,227,205,1)",
+                        pointBorderColor: "rgba(151,227,205,1)",
+                        pointBackgroundColor: "#fff",
+                        pointBorderWidth: 2,
+                    },
+                    {
+                        label: "cpu 10min平均负载",
+                        data: data10,
+                        backgroundColor: "rgba(220,220,220,0.4)",
+                        borderColor: "rgba(220,220,220,1)",
+                        pointBorderColor: "rgba(220,220,220,1)",
                         pointBackgroundColor: "#fff",
                         pointBorderWidth: 2,
                     }
@@ -55,10 +73,12 @@
 
             var options = {
                 responsive: false,
+                animation: false,
                 scales: {
                     xAxes: [{
-                        display: false
-                    }]
+                        display: false,
+                    }],
+                    yAxes: [{}]
                 }
             };
 
@@ -76,8 +96,10 @@
             var response = function (r) {
                 if (r.success) {
                     var labels = r.labels;
-                    var data = r.data.reverse();
-                    var d = cpuDataDict(labels, data);
+                    var data1 = r.data[0].reverse();
+                    var data5 = r.data[1].reverse();
+                    var data10 = r.data[2].reverse();
+                    var d = cpuDataDict(labels, data1, data5, data10);
                     linuxCpuChart = new Chart(ctx, d);
                 } else {
                     log(r.success)
@@ -87,13 +109,31 @@
             chart.recent_cpu(response);
         };
 
+        var updateCpuData = function () {
+            var response = function (r) {
+                if (r.success) {
+                    var data1 = r.data[0].reverse();
+                    var data5 = r.data[1].reverse();
+                    var data10 = r.data[2].reverse();
+                    log('dubug', linuxCpuChart);
+                    linuxCpuChart.data.datasets[0].data = data1;
+                    linuxCpuChart.data.datasets[1].data = data5;
+                    linuxCpuChart.data.datasets[2].data = data10;
+                    linuxCpuChart.update();
+                } else {
+                    log('fail')
+                }
+            };
+            chart.recent_cpu(response);
+        };
+
         var __main = function () {
 //            insertMacIoChart();
             insertCpuChart();
 //              insertDeviceChart();
-//            setInterval(function () {
-//                updateMacData();
-//            }, 1000);
+            setInterval(function () {
+                updateCpuData();
+            }, 1000);
         };
 
         $(document).ready(function () {
@@ -103,6 +143,6 @@
 </head>
 <body>
 <h1>服务器信息</h1>
-<canvas id="cpuChart" width="400" height="400"></canvas>
+<canvas id="cpuChart" width="2000" height="400"></canvas>
 </body>
 </html>
