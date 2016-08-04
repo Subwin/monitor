@@ -126,11 +126,3 @@ if __name__ == "__main__":
     #                              'data': [13.94, 0.85, 3.98, 0.19, 0.0, 81.04]},
     #             'cpu_load_data': {'lables': ['1min', '5min', '10min'], 'data': [0.01, 0.21, 0.31]}}}
 
-
-    # labels = [60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0]
-    # data_lists = coll.find().sort("created_time", DESCENDING).limit(len(labels))
-    # index_of_1min = 0
-    # index_of_5min = 1
-    # index_of_10min = 2
-    # recent_data_1min = [d['datasets']['cpu_load_data']['data'][index_of_1min] for d in data_lists]
-    # print(recent_data_1min)

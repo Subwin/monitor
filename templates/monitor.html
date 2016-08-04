@@ -37,6 +37,11 @@
             this.get(path, response);
         };
 
+        chart.recent_mem = function (response) {
+            var path = '/chart/recent/mem';
+            this.get(path, response);
+        };
+
         var cpuDataDict = function (labels, data1, data5, data10) {
             var d = {
                 labels: labels,
@@ -81,13 +86,74 @@
                     yAxes: [{}]
                 }
             };
-
             var cpuLineChart = {
                 type: 'line',
                 data: d,
                 options: options
             };
             return cpuLineChart
+        };
+
+
+        var memDataDict = function (labels, data) {
+            var d = {
+                labels: labels,
+                datasets: [
+                    {
+                        data: data,
+                        backgroundColor: [
+                            "#FF6384",
+                            "#36A2EB",
+                        ],
+                        hoverBackgroundColor: [
+                            "#FF6384",
+                            "#36A2EB",
+                        ]
+                    },
+                ]
+            };
+
+            var options = {
+                responsive: false,
+                animation: false,
+            };
+            var memLineChart = {
+                type: 'doughnut',
+                data: d,
+                options: options
+            };
+            return memLineChart
+        };
+
+        var insertMemChart = function () {
+            log('insertMemChart start')
+            var ctx = document.getElementById("memChart");
+            var response = function (r) {
+                if (r.success) {
+                    var labels = r.labels;
+                    var data = r.data;
+                    var d = memDataDict(labels, data);
+                    linuxMemChart = new Chart(ctx, d);
+                } else {
+                    log(r.success)
+                }
+
+            };
+            chart.recent_mem(response);
+        };
+
+        var updateMeoData = function () {
+            var response = function (r) {
+                if (r.success) {
+                    var data = r.data;
+                    linuxMemChart.data.datasets[0].data = data;
+                    linuxMemChart.update();
+                } else {
+                    log(r.success)
+                }
+
+            };
+            chart.recent_mem(response);
         };
 
 
@@ -128,12 +194,12 @@
         };
 
         var __main = function () {
-//            insertMacIoChart();
             insertCpuChart();
-//              insertDeviceChart();
+            insertMemChart();
             setInterval(function () {
                 updateCpuData();
-            }, 1000);
+                updateMeoData();
+            }, 5000);
         };
 
         $(document).ready(function () {
@@ -143,6 +209,14 @@
 </head>
 <body>
 <h1>服务器信息</h1>
-<canvas id="cpuChart" width="2000" height="400"></canvas>
+<div id="div1" style="float:left">
+    <canvas id="cpuChart" width="600" height="600"></canvas>
+</div>
+<div id="div3" style="float:left">
+    <canvas id="#" width="200" height="400"></canvas>
+</div>
+<div id="div2" style="float:left">
+    <canvas id="memChart" width="600" height="600"></canvas>
+</div>
 </body>
 </html>
